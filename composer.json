@@ -1,23 +1,25 @@
 {
-    "name": ":vendor/:package_name",
+    "name": "mrdionjr/elephanto",
     "type": "library",
-    "description": ":package_description",
+    "description": "A promise-based HTTP Client for PHP",
     "keywords": [
-        ":vendor",
-        ":package_name"
+        "mrdionjr",
+        "elephanto"
     ],
-    "homepage": "https://github.com/:vendor/:package_name",
+    "homepage": "https://github.com/mrdionjr/elephanto",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": ":author_email",
-            "homepage": ":author_website",
+            "name": "Salomon Dion",
+            "email": "dev.mrdion@gmail.com",
+            "homepage": "https://github.com/mrdionjr",
             "role": "Developer"
         }
     ],
     "require": {
-        "php" : "~7.1"
+        "php": "~7.1",
+        "ext-curl": "*",
+        "guzzlehttp/promises": "^1.3"
     },
     "require-dev": {
         "phpunit/phpunit" : ">=7.0",
@@ -25,12 +27,12 @@
     },
     "autoload": {
         "psr-4": {
-            ":vendor\\:package_name\\": "src"
+            "Elephanto\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            ":vendor\\:package_name\\": "tests"
+            "Elephanto\\": "tests"
         }
     },
     "scripts": {

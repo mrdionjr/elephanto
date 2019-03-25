@@ -19,7 +19,6 @@ class Elephanto
                 return static::post($url, $conf);
             default:
                 return static::get($url, $conf);
-                break;
         }
     }
 

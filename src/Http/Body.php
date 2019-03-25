@@ -7,6 +7,8 @@ namespace Elephanto\Http;
  */
 trait Body
 {
+    abstract public function getData();
+
     /**
      * Returns a text representation of the response body.
      *

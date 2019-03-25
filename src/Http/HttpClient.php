@@ -50,7 +50,7 @@ class HttpClient
      *
      * @return PromiseAdapter
      */
-    public function get($url, array $conf = [])
+    public function get(string $url, array $conf = [])
     {
         if (isset($conf['params']) && !empty($conf['params'])) {
             $url = sprintf("%s?%s", $url, http_build_query($conf['params']));
@@ -69,7 +69,7 @@ class HttpClient
      * @param  array  $data
      * @return HttpClient
      */
-    public function post($url, $data = null, array $conf = [])
+    public function post(string $url, $data = null, array $conf = [])
     {
         $this->initializeCurl($url);
         $this->setHeaders($conf['headers'] ?? []);
@@ -119,7 +119,7 @@ class HttpClient
     /**
      * Set the request headers.
      *
-     * @param arrray $headers
+     * @param array $headers
      */
     private function setHeaders(array $headers)
     {

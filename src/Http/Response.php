@@ -3,6 +3,7 @@
 namespace Elephanto\Http;
 
 use Elephanto\Contracts\Response as ResponseInterface;
+use Elephanto\Helpers\Http;
 
 /**
  * Defines a HTTP Response.
@@ -26,6 +27,13 @@ class Response implements ResponseInterface
      * @var mixed|null
      */
     private $data;
+
+    /**
+     * Response's request.
+     *
+     * @var Request
+     */
+    private $request;
 
     /**
      * Parser constructor.
@@ -53,13 +61,14 @@ class Response implements ResponseInterface
      */
     public function getRequest(): Request
     {
-        return new Request;
+        return $this->request;
     }
 
     /**
      * Returns the Headers object associated with the response.
      *
      * @return Headers
+     *
      * @throws
      */
     public function getHeaders(): Headers
@@ -71,18 +80,33 @@ class Response implements ResponseInterface
      * Returns the status code of the response (e.g., 200 for a success).
      *
      * @return int
-     * @throws
      */
     public function getStatus()
     {
-        return $this->headers['status_code'];
+        return $this->headers->get('status');
     }
 
     /**
      * Returns the status message corresponding to the status code (e.g., OK for 200).
+     *
+     * @var string
      */
-    public function getStatusText()
+    public function getStatusText(): string
     {
-        return 'OK';
+        return Http::STATUS_TEXT[$this->getStatus()];
+    }
+
+    /**
+     * Set the response request.
+     *
+     * @var Request
+     *
+     * @return $this
+     */
+    public function setRequest(Request &$request): Response
+    {
+        $this->request = $request;
+
+        return $this;
     }
 }

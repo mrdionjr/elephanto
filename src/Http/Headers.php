@@ -10,7 +10,7 @@ namespace Elephanto\Http;
 class Headers implements \ArrayAccess
 {
     /**
-     * Contains CURL response informations.
+     * Contains the headers from the CURL response informations.
      *
      * @var array
      */
@@ -18,7 +18,30 @@ class Headers implements \ArrayAccess
 
     public function __construct(array $infos = [])
     {
-        $this->infos = $infos;
+        $this->infos = [
+            'content-type' => $infos['content_type'],
+            'url' => $infos['url'],
+            'host' => $infos['primary_ip'],
+            'status' => $infos['http_code'],
+        ];
+    }
+
+    /**
+     * Retrieve a header value.
+     */
+    public function get($name)
+    {
+        return $this->infos[strtolower($name)];
+    }
+
+    /**
+     * Set a header value.
+     */
+    public function set($name, $value)
+    {
+        $this->infos[strtolower($name)] = $value;
+
+        return $this;
     }
 
     public function offsetExists($offset)
@@ -28,12 +51,12 @@ class Headers implements \ArrayAccess
 
     public function offsetGet($offset)
     {
-        return $this->infos[$offset];
+        return $this->get($offset);
     }
 
     public function offsetSet($offset, $value)
     {
-        $this->infos[$offset] = $value;
+        return $this->set($offset, $value);
     }
 
     public function offsetUnset($offset)

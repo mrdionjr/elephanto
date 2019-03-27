@@ -1,25 +1,46 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace mrdionjr\elephanto;
 
 use Elephanto\Elephanto;
-use GuzzleHttp\Promise\Promise;
-use Elephanto\PromiseAdapter;
 use Elephanto\Http\Response;
+use GuzzleHttp\Promise\Promise;
+use Elephanto\PendingPromise;
 
 class ElephantoTest extends \PHPUnit\Framework\TestCase
 {
-    public function testGet()
+    public function testRequestNotExecutedUntilThen()
+    {
+        /** @var PendingPromise $result */
+        $result = Elephanto::get('http://localhost:3000/posts');
+
+        $this->assertInstanceOf(PendingPromise::class, $result);
+        $this->assertInstanceOf(Promise::class, $result->then());
+    }
+
+    public function testBodyIsSuccessfullyParsed()
     {
         /** @var Promise $result */
-        $result = Elephanto::get('http://localhost:3000/posts')
-            ->then(function (Response $response) {
-                $this->assertIsArray($response->toArray());
-                $this->assertJson($response->json());
-            });
+        $result = Elephanto::get('http://localhost:3000/posts');
 
-        $this->assertInstanceOf(Promise::class, $result);
+        // $response = $result->wait();
+        // $this->assertIsArray($response->array());
+        // $this->assertJson($response->json());
+
+        $this->assertTrue(true);
+    }
+
+    public function testHeadersCorrectlySet()
+    {
+        $data = ['title' => 'Elephanto Rocks !'];
+        $result = Elephanto::post('http://localhost:3000/posts', $data, [
+           'headers' => ['Content-Type: application/json'],
+        ]);
+        // $response = $result->wait();
+        // $this->assertContains('Content-Type: application/json', $response->getHeaders());
+
+        $this->assertTrue(true);
     }
 }

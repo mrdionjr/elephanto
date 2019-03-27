@@ -7,20 +7,25 @@ namespace Elephanto\Http;
  */
 trait Body
 {
-    abstract public function getData();
+    /**
+     * Returns the content of the response/request body.
+     *
+     * @return mixed
+     */
+    abstract protected function getData();
 
     /**
-     * Returns a text representation of the response body.
+     * Returns the body as it is.
      *
      * @return string
      */
-    public function text(): string
+    public function raw(): string
     {
         return $this->getData();
     }
 
     /**
-     * Returns a JSON representation of the response body.
+     * Returns a JSON representation of the body.
      *
      * @return string
      */
@@ -30,11 +35,11 @@ trait Body
     }
 
     /**
-     * Returns an array representation of the response body.
+     * Returns an array representation of the body.
      *
      * @return array
      */
-    public function toArray(): array
+    public function array(): array
     {
         return json_decode($this->getData(), true);
     }

@@ -2,106 +2,88 @@
 
 namespace Elephanto\Http;
 
-use GuzzleHttp\Promise\Promise;
-use Elephanto\Exception\HttpException;
-use Elephanto\PromiseAdapter;
+use Elephanto\PendingPromise;
 
-/**
- * @method then($onSuccess, $onError)
- */
 class HttpClient
 {
     /**
-     * Request base url
+     * Request base url.
      *
      * @var string
      */
     private $base_url;
 
     /**
-     * Client options
-     */
-    private $options;
-
-    /**
-     * The curl Resource
+     * Client requestOptions.
      *
-     * @var Resource
+     * @var array
      */
-    private $curl_resource;
+    private $requestOptions = [];
 
     /**
      * HttpClient Constructor.
      *
      * @param string $url
-     * @param array $options
+     * @param array  $requestOptions
      */
-    public function __construct(array $options = [])
+    public function __construct(array $requestOptions = [])
     {
-        $this->options = $options;
-        $this->base_url = $options['baseUrl'] ?? '';
+        $this->requestOptions = $requestOptions;
+        $this->base_url = $requestOptions['baseURL'] ?? '';
     }
 
     /**
-     * Make GET request
+     * Make GET request.
      *
-     * @param  string $url
-     * @param  array  $conf
+     * @param string $url
+     * @param array  $conf
      *
-     * @return PromiseAdapter
+     * @return PendingPromise
      */
     public function get(string $url, array $conf = [])
     {
         if (isset($conf['params']) && !empty($conf['params'])) {
-            $url = sprintf("%s?%s", $url, http_build_query($conf['params']));
+            $url = sprintf('%s?%s', $url, http_build_query($conf['params']));
         }
 
-        $this->initializeCurl($url);
         $this->setHeaders($conf['headers'] ?? []);
+        $this->setMethod('GET');
+        $this->setURL($url);
 
-        return new PromiseAdapter($this);
+        return new PendingPromise([$this, 'run']);
     }
 
     /**
-     * Make POST request
+     * Make POST request.
      *
-     * @param  string $url
-     * @param  array  $data
-     * @return HttpClient
+     * @param string $url
+     * @param array  $data
+     *
+     * @return PendingPromise
      */
-    public function post(string $url, $data = null, array $conf = [])
+    public function post(string $url, $data = null, array $conf = []): PendingPromise
     {
-        $this->initializeCurl($url);
         $this->setHeaders($conf['headers'] ?? []);
+        $this->setMethod('POST');
+        $this->setURL($url);
 
-        if (curl_setopt($this->curl_resource, CURLOPT_POST, true)) {
-            if ($data) {
-                $this->setBody($data);
-            }
+        if ($data) {
+            $this->setBody($data);
         }
 
-        return new PromiseAdapter($this);
+        return new PendingPromise([$this, 'run']);
     }
 
     /**
-     * Execute the request
+     * Execute the request.
      *
      * @return mixed
-     * @throws \Exception
      */
     public function run()
     {
-        $data = curl_exec($this->curl_resource);
+        $request = (new Request($this->requestOptions))->run();
 
-        if ($data === false) {
-            return new HttpException(curl_error($this->curl_resource));
-        }
-
-        $response = new Response($data, new Headers(curl_getinfo($this->curl_resource)));
-
-        $this->close();
-
-        return $response;
+        return $request->getResponse();
     }
 
     /**
@@ -109,80 +91,55 @@ class HttpClient
      *
      * @param string|array $data
      *
-     * @return void
+     * @return $this
      */
-    private function setBody($body)
+    private function setBody($body): HttpClient
     {
-        curl_setopt($this->curl_resource, CURLOPT_POSTFIELDS, json_encode($body));
+        $this->requestOptions['body'] = $body;
+
+        return $this;
     }
 
     /**
      * Set the request headers.
      *
      * @param array $headers
+     *
+     * @return $this;
      */
-    private function setHeaders(array $headers)
+    private function setHeaders(array $headers): HttpClient
     {
-        $defaultHeaders = $this->options['headers'] ?? [];
-        curl_setopt($this->curl_resource, CURLOPT_HTTPHEADER, array_merge($defaultHeaders, $headers));
+        $defaultHeaders = $this->requestOptions['headers'] ?? [];
+        $this->requestOptions['headers'] = array_merge($defaultHeaders, $headers);
+
+        return $this;
     }
 
     /**
-     * Ensures that the curl resource has been initialized
+     * Set the request method.
      *
-     * @param string $url
+     * @param string $method
      *
-     * @return void
+     * @return $this
      */
-    private function initializeCurl($url)
+    private function setMethod(string $method): HttpClient
     {
-        if (!is_resource($this->curl_resource)) {
-            $this->curl_resource = curl_init($this->base_url.$url);
-            $this->setReturnTransfertToRaw();
-        }
+        $this->requestOptions['method'] = $method;
+
+        return $this;
     }
 
     /**
-     * Close connection
+     * Set the request URL.
      *
-     * @return void
-     */
-    private function close()
-    {
-        curl_close($this->curl_resource);
-        $this->curl_resource = null;
-    }
-
-    /**
-     * Set CURLOPT_RETURNTRANSFER option to return the response as a string
-     * instead of outputting it to the screen
+     * @param string
      *
-     * @return bool
+     * @return $this
      */
-    private function setReturnTransfert()
+    private function setURL(string $url): HttpClient
     {
-        if (!curl_setopt($this->curl_resource, CURLOPT_RETURNTRANSFER, true)) {
-            $this->close();
-            return false;
-        }
+        $this->requestOptions['url'] = $this->base_url.$url;
 
-        return true;
-    }
-
-    /**
-     * Set Curl CURLOPT_BINARYTRANSFER option
-     *
-     * @return bool
-     */
-    private function setReturnTransfertToRaw()
-    {
-        if ($this->setReturnTransfert()) {
-            if (!curl_setopt($this->curl_resource, CURLOPT_BINARYTRANSFER, true)) {
-                $this->close();
-                return false;
-            }
-        }
-
-        return true;
+        return $this;
     }
 }

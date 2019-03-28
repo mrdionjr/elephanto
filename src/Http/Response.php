@@ -49,7 +49,7 @@ class Response implements ResponseInterface
     /**
      * Returns the response provided by the server.
      */
-    protected function getData()
+    protected function data()
     {
         return $this->data;
     }
@@ -59,7 +59,7 @@ class Response implements ResponseInterface
      *
      * @return Request
      */
-    public function getRequest(): Request
+    public function request(): Request
     {
         return $this->request;
     }
@@ -71,7 +71,7 @@ class Response implements ResponseInterface
      *
      * @throws
      */
-    public function getHeaders(): Headers
+    public function headers(): Headers
     {
         return $this->headers;
     }
@@ -81,7 +81,7 @@ class Response implements ResponseInterface
      *
      * @return int
      */
-    public function getStatus()
+    public function status()
     {
         return $this->headers->get('status');
     }
@@ -91,9 +91,9 @@ class Response implements ResponseInterface
      *
      * @var string
      */
-    public function getStatusText(): string
+    public function statusText(): string
     {
-        return Http::STATUS_TEXT[$this->getStatus()];
+        return Http::STATUS_TEXT[$this->status()];
     }
 
     /**

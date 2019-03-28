@@ -12,5 +12,5 @@ interface Response
     /**
      * Returns the response headers.
      */
-    public function getHeaders(): Headers;
+    public function headers(): Headers;
 }

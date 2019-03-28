@@ -9,20 +9,24 @@ use GuzzleHttp\Promise\Promise;
  */
 class PendingPromise
 {
-    protected $element;
+    /**
+     * @var callable
+     */
+    protected $waitFn;
 
+    /**
+     * @var Promise
+     */
     protected $promise;
 
-    public function __construct(callable $element)
+    public function __construct($waitFn = null, $cancelFn = null)
     {
-        $this->element = $element;
-        $this->promise = new Promise(function ($promise) {
-            try {
-                $promise->resolve(\call_user_func($this->element));
-            } catch (\Throwable $th) {
-                $promise->reject($th);
-            }
+        $this->waitFn = $waitFn;
+        // Defining the element first is required to pass it as reference
+        $promise = new Promise(function () use (&$promise) {
+            $promise->resolve(\call_user_func($this->waitFn));
         });
+        $this->promise = $promise;
     }
 
     /**
@@ -38,7 +42,7 @@ class PendingPromise
         $promise = $this->promise->then($onSuccess, $onError);
 
         try {
-            $this->promise->resolve(\call_user_func($this->element));
+            $this->promise->resolve(\call_user_func($this->waitFn));
         } catch (\Throwable $th) {
             $this->promise->reject($th);
         }
@@ -51,5 +55,7 @@ class PendingPromise
         if ('wait' === $name) {
             return $this->promise->wait();
         }
+
+        throw new \Exception(sprintf('Method %s does not exists on %s', $name, __CLASS__), 1);
     }
 }

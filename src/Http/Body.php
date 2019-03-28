@@ -12,7 +12,7 @@ trait Body
      *
      * @return mixed
      */
-    abstract protected function getData();
+    abstract protected function data();
 
     /**
      * Returns the body as it is.
@@ -21,7 +21,7 @@ trait Body
      */
     public function raw(): string
     {
-        return $this->getData();
+        return $this->data();
     }
 
     /**
@@ -31,7 +31,7 @@ trait Body
      */
     public function json(): string
     {
-        return json_encode($this->getData());
+        return json_encode($this->data());
     }
 
     /**
@@ -41,6 +41,6 @@ trait Body
      */
     public function array(): array
     {
-        return json_decode($this->getData(), true);
+        return json_decode($this->data(), true);
     }
 }

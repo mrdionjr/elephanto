@@ -7,10 +7,10 @@ namespace Elephanto\Http;
  *
  * @author Salomon Dion (dev.mrdion@gmail.com)
  */
-class Headers implements \ArrayAccess
+class Headers
 {
     /**
-     * Contains the headers from the CURL response informations.
+     * Contains the response/request headers.
      *
      * @var array
      */
@@ -18,12 +18,8 @@ class Headers implements \ArrayAccess
 
     public function __construct(array $infos = [])
     {
-        $this->infos = [
-            'content-type' => $infos['content_type'],
-            'url' => $infos['url'],
-            'host' => $infos['primary_ip'],
-            'status' => $infos['http_code'],
-        ];
+        // FIXME: Normalize headers for request and responses
+        $this->infos = $infos;
     }
 
     /**
@@ -44,23 +40,8 @@ class Headers implements \ArrayAccess
         return $this;
     }
 
-    public function offsetExists($offset)
+    public function toArray(): array
     {
-        return isset($this->infos[$offset]);
-    }
-
-    public function offsetGet($offset)
-    {
-        return $this->get($offset);
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        return $this->set($offset, $value);
-    }
-
-    public function offsetUnset($offset)
-    {
-        unset($this->infos[$offset]);
+        return $this->infos;
     }
 }

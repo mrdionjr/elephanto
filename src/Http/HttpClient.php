@@ -83,7 +83,7 @@ class HttpClient
     {
         $request = (new Request($this->requestOptions))->run();
 
-        return $request->getResponse();
+        return $request->response();
     }
 
     /**
